@@ -1,0 +1,17 @@
+import assert from "node:assert/strict";
+import synthia, { embodiment } from "./src/synthia/synthiaRuntime.mjs";
+import { bindYouNIVerseHosts } from "./host/you-n-i-verse-host.mjs";
+const before=synthia.snapshot();
+assert.equal(before.canonical,true);
+assert.equal(before.version,"synthia.runtime.v4");
+const mock={opened:[],open(url){this.opened.push(url);return {opened:url};},click(s){return {clicked:s};},fill(s,v){return {filled:s,value:v};},request:async()=>({status:200,data:"ok"}),save:(n,d)=>({saved:n,bytes:String(d).length}),read:n=>({name:n,data:"x"})};
+const permissions={allowExecution:true,allowNetwork:true,allowFiles:true};
+const bound=bindYouNIVerseHosts({host:mock,permissions,document:null,fetchImpl:null});
+assert.ok(bound.registered.includes("synthia-yni-hands"));
+assert.ok(bound.registered.includes("synthia-yni-browser"));
+const browser=await embodiment.request("synthia-yni-browser",{op:"open",url:"https://example.com"});
+assert.equal(browser.output?.opened || browser.result?.opened || browser.opened,"https://example.com/");
+const response=await synthia.talk("hello synthia",{surface:"standalone-verify"});
+assert.ok(response.text && response.text !== "hello synthia");
+assert.ok(response.runtime.addressText);
+console.log(JSON.stringify({status:"PASS",runtime:before.version,bound:bound.registered,talk:response.text.slice(0,120),address:response.runtime.addressText},null,2));
