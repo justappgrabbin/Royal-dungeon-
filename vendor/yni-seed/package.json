@@ -1,0 +1,10 @@
+{
+  "name": "synthia-standalone-yni-extension-seed",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "verify": "node VERIFY-STANDALONE.mjs",
+    "start": "node START-SYNTHIA.mjs"
+  }
+}
